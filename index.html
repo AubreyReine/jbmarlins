@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Jericho Minors — Lineup Manager</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;color:#1a1a1a;font-size:15px;line-height:1.5;}
+button,input,select{font-family:inherit;}
+.app{max-width:720px;margin:0 auto;padding:16px;}
+.header{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #1a6fa0;}
+.logo{width:48px;height:48px;border-radius:50%;background:#0d4f7a;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;flex-shrink:0;}
+.header-text .title{font-size:20px;font-weight:700;color:#0d4f7a;}
+.header-text .sub{font-size:13px;color:#666;}
+.tabs{display:flex;border-bottom:2px solid #ddd;margin-bottom:18px;overflow-x:auto;}
+.tab{padding:10px 16px;font-size:14px;font-weight:500;color:#888;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.15s;white-space:nowrap;}
+.tab.active{color:#1a6fa0;border-bottom-color:#1a6fa0;}
+.tab:hover:not(.active){color:#444;}
+.card{background:#fff;border:1px solid #e0dcd4;border-radius:12px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.section-title{font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:12px;}
+button{padding:8px 15px;border:1px solid #ccc;border-radius:8px;background:#fff;color:#1a1a1a;cursor:pointer;font-size:13px;transition:all 0.12s;}
+button:hover{background:#f0ede6;}
+button:active{transform:scale(0.97);}
+button.primary{background:#1a6fa0;color:#fff;border-color:#1a6fa0;font-weight:600;}
+button.primary:hover{background:#0d4f7a;}
+button.secondary{background:#f0f4f8;border-color:#ccc;color:#444;}
+button.danger{color:#c0392b;border-color:#e0b0ad;background:#fff;}
+button.danger:hover{background:#fdf0ef;}
+button.small{padding:3px 9px;font-size:12px;}
+button.icon-btn{padding:4px 8px;font-size:15px;line-height:1;border-radius:6px;min-width:30px;}
+button:disabled{opacity:0.35;cursor:not-allowed;}
+input[type=text],input[type=number],select{padding:8px 10px;border:1px solid #ccc;border-radius:8px;font-size:14px;background:#fff;color:#1a1a1a;outline:none;transition:border 0.12s;}
+input:focus,select:focus{border-color:#1a6fa0;box-shadow:0 0 0 3px rgba(26,111,160,0.12);}
+.player-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0ede6;}
+.player-row:last-child{border-bottom:none;}
+.num-badge{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 5px;border-radius:50%;background:#f0f4f8;border:1px solid #ddd;font-size:11px;font-weight:700;color:#555;flex-shrink:0;}
+.dots{display:flex;gap:3px;align-items:center;}
+.dot{width:8px;height:8px;border-radius:50%;}
+.dot-on{background:#1a6fa0;}
+.dot-off{background:#ddd;}
+.dots-col{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.dots-label{font-size:9px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.04em;}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;vertical-align:middle;margin-left:4px;}
+.badge-green{background:#d4edda;color:#1a6630;}
+.badge-amber{background:#fff3cd;color:#7a5000;}
+.badge-blue{background:#d0e8fa;color:#0c3d6e;}
+.badge-gold{background:#fff3cd;color:#7a4f00;border:1px solid #f0c040;}
+.pill{display:inline-block;font-size:11px;padding:3px 8px;border-radius:20px;font-weight:700;white-space:nowrap;}
+.pill-infield{background:#d0e8fa;color:#0c3d6e;}
+.pill-outfield{background:#d4edda;color:#1a6630;}
+.pill-catcher{background:#fff3cd;color:#7a5000;}
+.pill-pitcher{background:#e8e0fa;color:#3b2080;}
+.pill-rover{background:#d0f5ea;color:#0a5438;}
+.pill-bench{background:#f0ede6;color:#888;}
+.warn{background:#fff8e1;color:#7a5000;border:1px solid #ffe082;font-size:13px;padding:8px 12px;border-radius:8px;margin-top:8px;}
+.ok{background:#e8f5e9;color:#1a6630;border:1px solid #a5d6a7;font-size:13px;padding:8px 12px;border-radius:8px;margin-top:8px;}
+.info{background:#e3f2fd;color:#0c3d6e;border:1px solid #90caf9;font-size:13px;padding:8px 12px;border-radius:8px;}
+.mode-btn{padding:7px 13px;font-size:13px;border:1px solid #ccc;border-radius:8px;background:#fff;color:#666;cursor:pointer;}
+.mode-btn.active{background:#1a6fa0;color:#fff;border-color:#1a6fa0;font-weight:600;}
+.mode-btn.locked{background:#d4a800;color:#fff;border-color:#b38a00;font-weight:600;cursor:default;}
+.mode-btn:hover:not(.active):not(.locked){background:#f0ede6;}
+.modes{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.editor-panel{background:#f8f9fc;border:1px solid #dde3ec;border-radius:10px;padding:14px 16px;margin-bottom:14px;}
+.pref-btn{padding:4px 10px;font-size:12px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;}
+.pref-btn.sel{background:#1a6fa0;color:#fff;border-color:#1a6fa0;}
+.attend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px;}
+.attend-card{border:2px solid #e0dcd4;border-radius:10px;padding:10px 8px;text-align:center;cursor:pointer;transition:all 0.15s;background:#fff;}
+.attend-card.in{border-color:#1a6fa0;background:#e8f4fb;}
+.attend-card.out{border-color:#e0dcd4;background:#fafafa;opacity:0.6;}
+.attend-name{font-size:13px;font-weight:600;margin-bottom:2px;}
+.attend-num{font-size:11px;color:#aaa;}
+table{border-collapse:collapse;width:100%;}
+th{text-align:left;font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.04em;padding:7px 6px;border-bottom:2px solid #e0dcd4;}
+td{padding:6px 6px;font-size:13px;border-bottom:1px solid #f0ede6;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+.tc{text-align:center;}
+.sticky-col{position:sticky;background:#fff;z-index:2;}
+.sticky-col-1{left:0;min-width:36px;max-width:36px;}
+.sticky-col-2{left:36px;min-width:90px;}
+.sticky-header{position:sticky;top:0;background:#fff;z-index:3;}
+.rot-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;position:relative;}
+.edit-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:flex-end;justify-content:center;}
+.edit-modal{background:#fff;border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:720px;max-height:85vh;overflow-y:auto;}
+.edit-modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.pos-select{padding:6px 8px;border:1px solid #ccc;border-radius:8px;font-size:13px;background:#fff;width:100%;font-family:inherit;}
+.lock-card{background:#e8f5e9;border:2px solid #a5d6a7;}
+.lock-card.locked{background:#fff8e1;border-color:#f0c030;}
+.lock-card.stale{background:#fdf0ef;border-color:#e08070;}
+.bat-order-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0ede6;}
+.bat-order-row:last-child{border-bottom:none;}
+.bat-avg-pill{font-size:11px;padding:2px 7px;border-radius:10px;background:#f0f4f8;color:#888;border:1px solid #e0dcd4;white-space:nowrap;flex-shrink:0;}
+.bat-avg-good{background:#d4edda;color:#1a6630;border-color:#a5d6a7;}
+.bat-avg-mid{background:#fff3cd;color:#7a5000;border-color:#ffe082;}
+.bat-avg-low{background:#fde8e8;color:#8b0000;border-color:#f5b8b8;}
+.game-banner{background:#0d4f7a;color:#fff;border-radius:12px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.game-banner.is-final{background:#7a4f00;}
+.glabel{font-size:22px;font-weight:800;}
+.gsub{font-size:13px;opacity:0.75;margin-top:2px;}
+.game-dots-wrap{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;}
+.dots-group{display:flex;flex-direction:column;gap:4px;}
+.dots-group-label{font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.05em;}
+.dots-row{display:flex;gap:5px;flex-wrap:wrap;}
+.gdot{width:34px;height:34px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#bbb;cursor:pointer;transition:all 0.15s;background:#fff;flex-shrink:0;}
+.gdot.played{background:#1a6fa0;border-color:#1a6fa0;color:#fff;}
+.gdot.current{border-color:#1a6fa0;color:#1a6fa0;background:#e8f4fb;box-shadow:0 0 0 3px #1a6fa025;}
+.gdot.final-dot{border-color:#d4a800;color:#7a4f00;}
+.gdot.final-dot.played{background:#d4a800;border-color:#b38a00;color:#fff;}
+.gdot.final-dot.current{background:#fff8e1;border-color:#d4a800;color:#7a4f00;box-shadow:0 0 0 3px #d4a80025;}
+
+.inn-pick-btn{width:58px;height:58px;border-radius:50%;font-size:20px;font-weight:700;border:2px solid #ccc;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.12s;}
+.inn-pick-btn.active{background:#1a6fa0;color:#fff;border-color:#1a6fa0;box-shadow:0 0 0 3px #1a6fa025;}
+@media(max-width:500px){
+  .app{padding:10px;}
+  th,td{padding:5px 3px;font-size:12px;}
+  .pill{font-size:10px;padding:2px 5px;}
+  .attend-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));}
+  .gdot{width:28px;height:28px;font-size:10px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="header">
+  <div class="logo" id="header-logo">JM</div>
+  <div class="header-text">
+    <div class="title" id="header-title">Jericho Minors Marlins</div>
+    <div class="sub">Lineup Manager · Minors Division · Pitching Machine Rules</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('game')">Game</div>
+  <div class="tab" onclick="showTab('roster')">Roster</div>
+  <div class="tab" onclick="showTab('season')">Season Log</div>
+  <div class="tab" onclick="showTab('settings')">Settings</div>
+</div>
+
+<!-- GAME TAB -->
+<div id="tab-game">
+  <div id="game-banner" class="game-banner">
+    <div>
+      <div class="glabel" id="banner-label">Game 1 of 8</div>
+      <div class="gsub" id="banner-sub">League game · Not yet saved</div>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button id="btn-prev" onclick="prevGame()" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3);color:#fff;font-size:12px;padding:5px 12px;">Prev</button>
+      <button id="btn-next" onclick="nextGame()" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3);color:#fff;font-size:12px;padding:5px 12px;">Next</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Season progress</div>
+    <div class="game-dots-wrap">
+      <div class="dots-group"><div class="dots-group-label">League games</div><div class="dots-row" id="league-dots"></div></div>
+      <div class="dots-group"><div class="dots-group-label">Final</div><div class="dots-row" id="final-dot"></div></div>
+    </div>
+    <div style="font-size:12px;color:#aaa;margin-top:10px;">Tap a dot to jump to that game. Blue = saved, outlined = current.</div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Who's playing today?</div>
+    <div class="attend-grid" id="attend-grid"></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="secondary small" onclick="setAllAttend(true)">All in</button>
+      <button class="secondary small" onclick="setAllAttend(false)">All out</button>
+      <span id="attend-count" style="font-size:13px;color:#888;margin-left:4px;"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Batting order strategy</div>
+    <div id="final-bat-notice" style="display:none;margin-bottom:10px;" class="info">It's The Final — consider switching to Competitive for your best lineup.</div>
+    <div class="modes" id="bat-modes">
+      <button class="mode-btn" data-mode="confidence" onclick="setBatMode(this)">Confidence boost</button>
+      <button class="mode-btn" data-mode="competitive" onclick="setBatMode(this)">Competitive</button>
+      <button class="mode-btn active" data-mode="season-fair" onclick="setBatMode(this)">Season fair</button>
+      <button class="mode-btn" data-mode="fair-top" onclick="setBatMode(this)">Fair — strong top</button>
+      <button class="mode-btn" data-mode="fair-mid" onclick="setBatMode(this)">Fair — strong mid</button>
+      <button class="mode-btn" data-mode="fair-bot" onclick="setBatMode(this)">Fair — strong bottom</button>
+      <button class="mode-btn" data-mode="random" onclick="setBatMode(this)">Random</button>
+    </div>
+    <div id="bat-mode-desc" style="font-size:13px;color:#666;padding:8px 10px;background:#f5f5f0;border-radius:8px;"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+      <div class="section-title" style="margin-bottom:0;">Batting order</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="bat-order-confirm" style="font-size:12px;color:#1a6630;display:none;">Order set for this game</span>
+        <button class="small secondary" onclick="buildRecommendedOrder()">Reset to recommended</button>
+      </div>
+    </div>
+    <div style="font-size:12px;color:#888;margin-bottom:10px;">Use arrows to adjust. Tag shows each player's average batting position this season.</div>
+    <div style="display:flex;gap:12px;font-size:11px;color:#aaa;margin-bottom:8px;flex-wrap:wrap;">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#d4edda;border:1px solid #a5d6a7;vertical-align:middle;margin-right:3px;"></span>Needs top zone (1–4)</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#fff3cd;border:1px solid #ffe082;vertical-align:middle;margin-right:3px;"></span>Needs middle (5–7)</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#fde8e8;border:1px solid #f5b8b8;vertical-align:middle;margin-right:3px;"></span>Needs bottom (8–11)</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#f0f4f8;border:1px solid #e0dcd4;vertical-align:middle;margin-right:3px;"></span>No history yet</span>
+    </div>
+    <div style="font-size:11px;color:#aaa;margin-bottom:8px;">Tag shows season zone tally: <strong>T</strong>=top (1–4) · <strong>M</strong>=mid (5–7) · <strong>B</strong>=bottom (8–11). Colour = zone they need most next.</div>
+    <div id="bat-order-editor"></div>
+  </div>
+
+  <div class="card" id="def-strategy-card">
+    <div class="section-title">Defensive strategy</div>
+    <div id="final-def-notice" style="display:none;margin-bottom:10px;" class="info">It's The Final — consider switching to Competitive defense.</div>
+    <div class="modes" id="def-modes">
+      <button class="mode-btn active" data-dmode="balanced" onclick="setDefMode(this)">Balanced</button>
+      <button class="mode-btn" data-dmode="competitive" onclick="setDefMode(this)">Competitive</button>
+      <button class="mode-btn" data-dmode="development" onclick="setDefMode(this)">Development</button>
+      <button class="mode-btn" data-dmode="season-fair" onclick="setDefMode(this)">Season fair</button>
+    </div>
+    <div id="def-mode-desc" style="font-size:13px;color:#666;padding:8px 10px;background:#f5f5f0;border-radius:8px;"></div>
+  </div>
+
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:20px;">
+    <button class="primary" onclick="generateLineup()" style="font-size:15px;padding:11px 24px;">Generate defensive lineup</button>
+    <button class="secondary" onclick="regenerateDefense()">Regenerate defense</button>
+  </div>
+
+  <div id="lineup-output"></div>
+</div>
+
+<!-- ROSTER TAB -->
+<div id="tab-roster" style="display:none;">
+  <div class="card">
+    <div class="section-title">Players</div>
+    <div style="display:flex;gap:6px;margin-bottom:8px;padding-right:4px;">
+      <div style="width:30px;flex-shrink:0;"></div>
+      <div style="flex:1;"></div>
+      <div style="display:flex;gap:20px;">
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.04em;width:46px;">Batting</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.04em;width:46px;">Fielding</div>
+      </div>
+      <div style="width:46px;flex-shrink:0;"></div>
+    </div>
+    <div id="player-list"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+      <input type="number" id="new-num" placeholder="#" min="0" max="99" style="width:60px;"/>
+      <input type="text" id="new-name" placeholder="Player name" style="flex:1;min-width:120px;"/>
+      <button class="primary" onclick="addPlayer()">+ Add</button>
+    </div>
+  </div>
+  <div class="editor-panel" id="editor-panel" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <strong id="editor-heading">Edit player</strong>
+      <button class="small" onclick="closeEditor()">Done</button>
+    </div>
+    <div id="editor-body"></div>
+  </div>
+</div>
+
+<!-- SEASON TAB -->
+<div id="tab-season" style="display:none;">
+  <div class="card">
+    <div class="section-title">Season statistics</div>
+    <div style="font-size:13px;color:#666;margin-bottom:12px;">Fielding stats reflect innings actually played. Batting positions recorded as set each game.</div>
+    <div id="season-body"><div style="color:#aaa;font-size:13px;">No games saved yet.</div></div>
+  </div>
+  <div class="card">
+    <div class="section-title">Game history</div>
+    <div style="font-size:13px;color:#666;margin-bottom:12px;">Tap any game to see the full batting order and defensive rotation.</div>
+    <div id="game-history-body"><div style="color:#aaa;font-size:13px;">No games saved yet.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Export data</div>
+    <div style="font-size:13px;color:#666;margin-bottom:12px;">Back up your data or export for analysis in Excel or Google Sheets.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="primary" onclick="exportBackup()">Export backup (JSON)</button>
+      <button class="primary" onclick="exportCSV()">Export season stats (CSV)</button>
+    </div>
+    <div style="font-size:12px;color:#aaa;margin-top:8px;">Backup saves everything and can be restored via Settings. CSV opens in Excel or Google Sheets for analysis.</div>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <button class="danger" onclick="clearSeason()">Reset season log</button>
+  </div>
+  <div id="save-confirm" style="margin-top:8px;"></div>
+</div>
+
+<!-- SETTINGS TAB -->
+<div id="tab-settings" style="display:none;">
+  <div class="card">
+    <div class="section-title">Team name</div>
+    <div style="font-size:13px;color:#666;margin-bottom:12px;">Update the team name shown across the app. Useful when sharing this file with another coach.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <input type="text" id="settings-team-name" placeholder="Team name" style="flex:1;min-width:180px;font-weight:600;font-size:15px;"/>
+      <button class="primary" onclick="saveTeamName()">Save name</button>
+    </div>
+    <div id="team-name-confirm" style="margin-top:8px;"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Season structure</div>
+    <div style="font-size:13px;color:#666;margin-bottom:12px;">Number of league games this season, not including the Final.</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <input type="number" id="settings-league-games" min="1" max="20" style="width:70px;font-size:16px;font-weight:700;text-align:center;"/>
+      <span style="font-size:13px;color:#666;">league games + 1 Final</span>
+      <button class="primary" onclick="saveLeagueGames()">Save</button>
+    </div>
+    <div id="league-games-confirm" style="margin-top:8px;"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Import backup</div>
+    <div style="font-size:13px;color:#666;margin-bottom:12px;">Restore a previously exported backup file. This will overwrite all current data.</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <input type="file" id="import-file" accept=".json" style="font-size:13px;flex:1;min-width:0;"/>
+      <button class="primary" onclick="importBackup()">Import</button>
+    </div>
+    <div id="import-confirm" style="margin-top:8px;"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Reset season data only</div>
+    <div style="font-size:13px;color:#666;margin-bottom:12px;">Clears all game history, season stats, and batting position records — but keeps your full player roster intact. Use at the start of a new season.</div>
+    <button class="danger" onclick="resetSeasonOnly()">Reset season data</button>
+    <div id="season-reset-confirm" style="margin-top:8px;"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Reset everything</div>
+    <div style="font-size:13px;color:#666;margin-bottom:12px;">Clears all players, season log, and game history. Use when setting up fresh for a new team.</div>
+    <button class="danger" onclick="resetEverything()">Reset all data</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const POSITIONS=['Pitcher','Catcher','1B','2B','3B','SS','LF','CF','RF','Rover'];
+const INFIELD=['Pitcher','Catcher','1B','2B','3B','SS'];
+
+const BAT_MODES={
+  confidence:{label:'Confidence boost',desc:'Strongest batters lead off  -  maximises early scoring and momentum. Best for early season.'},
+  competitive:{label:'Competitive',desc:'Classic 3-4-5 power lineup  -  best hitters in the heart of the order. Recommended for tough games and The Final.'},
+  'season-fair':{label:'Season fair',desc:'Rotates kids through top (1-4), middle (5-7), and bottom (8-11) of the order across the season  -  every player experiences all parts of the lineup over time.'},
+  'fair-top':{label:'Fair  -  strong top',desc:'Skill order, nudging kids who have had fewer top-order turns toward the top.'},
+  'fair-mid':{label:'Fair  -  strong mid',desc:'Strong batters in the middle  -  balances fairness with run production.'},
+  'fair-bot':{label:'Fair  -  strong bottom',desc:'Stronger batters at the bottom  -  developing kids get a turn at the top.'},
+  random:{label:'Random',desc:'Completely random  -  equal opportunity regardless of skill or history.'}
+};
+
+let batMode='season-fair';
+let defMode='balanced';
+
+const DEF_MODES={
+  balanced:{label:'Balanced',desc:'Fair rotation  -  everyone gets a mix of infield and outfield across the game. Default mode for most games.'},
+  competitive:{label:'Competitive',desc:'Prioritises your best fielders at Pitcher and 1B (highest action at this age), then SS and 3B. Strong 1B players get priority at first. Recommended for tough games and The Final.'},
+  development:{label:'Development',desc:'Rotates kids through positions they have played least this season  -  great for mid-season skill building.'},
+  'season-fair':{label:'Season fair',desc:'Steers players toward positions they have had the least time at across the whole season  -  maximum positional equity.'}
+};
+let selectedId=null;
+let lastDefenseRotations=null;
+let editedInnings={}; // {innIdx: true} tracks manually edited innings
+let lockedLineup=null; // locked rotation saved before game starts
+let currentBatOrder=[];
+let currentGame=1;
+let totalLeagueGames=8;
+let teamName='Jericho Minors Marlins';
+let saveModalInnings=3;
+
+const ROSTER_NAMES=['Reus','Finn','Ellis','Christopher','Ben','Clea','Luke','Luka','Zach','Boran','Araya'];
+function mkPlayer(id,name){return{id,name,number:'',batting:3,fielding:3,preferred:[],canCatch:false,catWilling:false,strong1B:false,attending:true};}
+
+let players=[];
+let nextId=1;
+let seasonLog={};
+let gameLog={};
+
+function defaultRoster(){players=ROSTER_NAMES.map((n,i)=>mkPlayer(i+1,n));nextId=ROSTER_NAMES.length+1;}
+
+function saveData(){
+  try{
+    localStorage.setItem('jll_players',JSON.stringify(players));
+    localStorage.setItem('jll_nextid',''+nextId);
+    localStorage.setItem('jll_season',JSON.stringify(seasonLog));
+    localStorage.setItem('jll_gamelog',JSON.stringify(gameLog));
+    localStorage.setItem('jll_batmode',batMode);
+    localStorage.setItem('jll_currentgame',''+currentGame);
+    localStorage.setItem('jll_totalleague',''+totalLeagueGames);
+    localStorage.setItem('jll_teamname',teamName);
+    localStorage.setItem('jll_defmode',defMode);
+  }catch(e){}
+}
+
+function loadData(){
+  try{
+    const p=localStorage.getItem('jll_players');if(p)players=JSON.parse(p);else defaultRoster();
+    nextId=parseInt(localStorage.getItem('jll_nextid')||''+(ROSTER_NAMES.length+1));
+    const s=localStorage.getItem('jll_season');seasonLog=s?JSON.parse(s):{};
+    const gl=localStorage.getItem('jll_gamelog');gameLog=gl?JSON.parse(gl):{};
+    const bm=localStorage.getItem('jll_batmode');if(bm&&BAT_MODES[bm])batMode=bm;
+    const cg=localStorage.getItem('jll_currentgame');if(cg)currentGame=parseInt(cg);
+    const tl=localStorage.getItem('jll_totalleague');if(tl)totalLeagueGames=parseInt(tl);
+    const tn=localStorage.getItem('jll_teamname');if(tn)teamName=tn;
+    const lk=localStorage.getItem('jll_locked');if(lk)lockedLineup=JSON.parse(lk);
+    const dm=localStorage.getItem('jll_defmode');if(dm&&DEF_MODES[dm])defMode=dm;
+  }catch(e){defaultRoster();}
+}
+loadData();
+
+function totalGames(){return totalLeagueGames+1;}
+function isFinal(g){return g===totalGames();}
+function isPlayed(g){return gameLog[g]?.saved===true;}
+function gameLabel(g){return isFinal(g)?'The Final':`Game ${g} of ${totalLeagueGames}`;}
+function gameType(g){return isFinal(g)?'End-of-season final':'League game';}
+function effectiveBatMode(){return batMode;}
+function effectiveDefMode(){return defMode;}
+
+function setDefMode(btn){
+  if(isFinal(currentGame))return;
+  defMode=btn.dataset.dmode;
+  document.querySelectorAll('.mode-btn[data-dmode]').forEach(b=>b.classList.toggle('active',b.dataset.dmode===defMode));
+  document.getElementById('def-mode-desc').textContent=DEF_MODES[defMode].desc;
+  saveData();
+}
+
+function applyTeamName(){
+  document.getElementById('header-title').textContent=teamName;
+  const parts=teamName.trim().split(/\s+/);
+  const initials=parts.length>=2?parts[0][0]+parts[parts.length-1][0]:teamName.substring(0,2);
+  document.getElementById('header-logo').textContent=initials.toUpperCase();
+}
+
+function showTab(t){
+  ['game','roster','season','settings'].forEach((x,i)=>{
+    document.getElementById('tab-'+x).style.display=x===t?'block':'none';
+    document.querySelectorAll('.tab')[i].classList.toggle('active',x===t);
+  });
+  if(t==='season')renderSeason();
+  if(t==='settings'){document.getElementById('settings-team-name').value=teamName;document.getElementById('settings-league-games').value=totalLeagueGames;}
+  if(t==='game')refreshFinalUI();
+}
+
+function saveTeamName(){
+  const val=document.getElementById('settings-team-name').value.trim();if(!val)return;
+  teamName=val;saveData();applyTeamName();
+  flash('team-name-confirm','Team name updated!');
+}
+function saveLeagueGames(){
+  const val=parseInt(document.getElementById('settings-league-games').value);
+  if(!val||val<1||val>20)return;
+  totalLeagueGames=val;saveData();updateBanner();
+  flash('league-games-confirm','Season structure updated!');
+}
+function resetSeasonOnly(){
+  if(!confirm('Reset season data? This will clear all game history, stats, and batting records but keep your roster. Cannot be undone.'))return;
+  seasonLog={};gameLog={};currentGame=1;lockedLineup=null;try{localStorage.removeItem('jll_locked');}catch(e){}
+  saveData();renderSeason();updateBanner();buildRecommendedOrder();
+  document.getElementById('lineup-output').innerHTML='';
+  flash('season-reset-confirm','Season data reset  -  roster kept intact.');
+}
+function resetEverything(){
+  if(!confirm('Reset ALL data  -  players, season log, game history, and settings? This cannot be undone.'))return;
+  localStorage.clear();
+  players=[];seasonLog={};gameLog={};currentGame=1;totalLeagueGames=8;teamName='Jericho Minors Marlins';batMode='season-fair';
+  defaultRoster();saveData();applyTeamName();
+  renderRoster();renderAttendance();updateBanner();buildRecommendedOrder();
+  document.getElementById('lineup-output').innerHTML='';
+  showTab('game');
+}
+function flash(id,msg){
+  const c=document.getElementById(id);if(!c)return;
+  c.innerHTML=`<div class="ok">${msg}</div>`;setTimeout(()=>{c.innerHTML='';},2500);
+}
+
+function updateBanner(){
+  const g=currentGame;const fin=isFinal(g);
+  document.getElementById('game-banner').className='game-banner'+(fin?' is-final':'');
+  document.getElementById('banner-label').textContent=gameLabel(g);
+  const saved=isPlayed(g);
+  const innings=gameLog[g]?.actualInnings;
+  document.getElementById('banner-sub').textContent=gameType(g)+' . '+(saved?`Saved  -  ${innings} inning${innings!==1?'s':''} played`:'Not yet saved');
+  document.getElementById('btn-prev').disabled=g<=1;
+  document.getElementById('btn-next').disabled=g>=totalGames();
+  renderSeasonDots();refreshFinalUI();buildRecommendedOrder();
+}
+
+function refreshFinalUI(){
+  const fin=isFinal(currentGame);
+  // Show/hide the final notices but don't lock anything
+  document.getElementById('final-bat-notice').style.display=fin?'block':'none';
+  document.getElementById('final-def-notice').style.display=fin?'block':'none';
+  document.querySelectorAll('.mode-btn[data-mode]').forEach(b=>{
+    b.classList.remove('locked');b.disabled=false;
+    b.classList.toggle('active',b.dataset.mode===batMode);
+  });
+  document.getElementById('bat-mode-desc').textContent=BAT_MODES[batMode].desc;
+  document.querySelectorAll('.mode-btn[data-dmode]').forEach(b=>{
+    b.classList.remove('locked');b.disabled=false;
+    b.classList.toggle('active',b.dataset.dmode===defMode);
+  });
+  document.getElementById('def-mode-desc').textContent=DEF_MODES[defMode].desc;
+}
+
+function renderSeasonDots(){
+  const ld=document.getElementById('league-dots');ld.innerHTML='';
+  for(let g=1;g<=totalLeagueGames;g++){
+    const d=document.createElement('div');
+    d.className='gdot'+(isPlayed(g)?' played':g===currentGame?' current':'');
+    d.textContent=g;d.title=`Game ${g}${isPlayed(g)?`  -  ${gameLog[g].actualInnings} innings`:''}`;
+    d.onclick=(gg=>()=>jumpToGame(gg))(g);ld.appendChild(d);
+  }
+  const fd=document.getElementById('final-dot');fd.innerHTML='';
+  const tg=totalGames();
+  const d=document.createElement('div');
+  d.className='gdot final-dot'+(isPlayed(tg)?' played':tg===currentGame?' current':'');
+  d.textContent='F';d.title='The Final'+(isPlayed(tg)?`  -  ${gameLog[tg].actualInnings} innings`:'');
+  d.onclick=()=>jumpToGame(tg);fd.appendChild(d);
+}
+
+function jumpToGame(g){currentGame=g;lastDefenseRotations=null;currentBatOrder=[];document.getElementById('lineup-output').innerHTML='';saveData();updateBanner();}
+function prevGame(){if(currentGame>1)jumpToGame(currentGame-1);}
+function nextGame(){if(currentGame<totalGames())jumpToGame(currentGame+1);}
+
+function renderAttendance(){
+  const grid=document.getElementById('attend-grid');grid.innerHTML='';
+  players.forEach(p=>{
+    const d=document.createElement('div');
+    d.className='attend-card '+(p.attending?'in':'out');
+    d.onclick=()=>{p.attending=!p.attending;saveData();renderAttendance();buildRecommendedOrder();};
+    d.innerHTML=`<div class="attend-name">${p.name}</div><div class="attend-num">${p.number?'#'+p.number:'no #'}</div>`;
+    grid.appendChild(d);
+  });
+  const n=players.filter(p=>p.attending).length;
+  document.getElementById('attend-count').textContent=`${n} player${n!==1?'s':''} in`;
+}
+function setAllAttend(val){players.forEach(p=>p.attending=val);saveData();renderAttendance();buildRecommendedOrder();}
+
+function setBatMode(btn){
+  if(isFinal(currentGame))return;
+  batMode=btn.dataset.mode;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===batMode));
+  document.getElementById('bat-mode-desc').textContent=BAT_MODES[batMode].desc;
+  saveData();buildRecommendedOrder();
+}
+
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function avgBatPos(pid){
+  const log=seasonLog[pid];
+  if(!log||!log.batPositions||!log.batPositions.length)return null;
+  return log.batPositions.reduce((a,b)=>a+b,0)/log.batPositions.length;
+}
+
+// Zone definitions for n players: top = 1..topEnd, mid = topEnd+1..midEnd, bot = rest
+function getBatZones(n){
+  // For 11: top=1-4, mid=5-7, bot=8-11
+  // Scales proportionally for other roster sizes
+  const topCount=Math.round(n*4/11);
+  const midCount=Math.round(n*3/11);
+  return{topEnd:topCount, midEnd:topCount+midCount};
+}
+
+function getZone(pos,n){
+  const{topEnd,midEnd}=getBatZones(n);
+  if(pos<=topEnd)return'top';
+  if(pos<=midEnd)return'mid';
+  return'bot';
+}
+
+function zoneCountsForPlayer(pid){
+  const log=seasonLog[pid];
+  if(!log||!log.batPositions||!log.batPositions.length)return{top:0,mid:0,bot:0,total:0};
+  const n=players.filter(p=>p.attending).length||11;
+  const counts={top:0,mid:0,bot:0,total:log.batPositions.length};
+  log.batPositions.forEach(pos=>counts[getZone(pos,n)]++);
+  return counts;
+}
+
+function getTargetZone(pid,n){
+  // Which zone does this player need most based on season history?
+  const counts=zoneCountsForPlayer(pid);
+  if(counts.total===0)return null; // no history
+  // Find zone with fewest appearances, break ties by: top > bot > mid
+  // (top is most impactful so prioritise getting everyone there)
+  const zones=[
+    {zone:'top',count:counts.top,priority:0},
+    {zone:'bot',count:counts.bot,priority:1},
+    {zone:'mid',count:counts.mid,priority:2}
+  ];
+  zones.sort((a,b)=>a.count-b.count||a.priority-b.priority);
+  return zones[0].zone;
+}
+
+function buildRecommendedOrder(){
+  const el=document.getElementById('bat-order-confirm');
+  if(el)el.style.display='none';
+  const active=players.filter(p=>p.attending);
+  if(!active.length){currentBatOrder=[];renderBatOrderEditor();return;}
+  const mode=effectiveBatMode();const n=active.length;
+  const sorted=[...active].sort((a,b)=>b.batting-a.batting);
+  let order;
+  if(mode==='confidence'){order=sorted;}
+  else if(mode==='competitive'){const rest=shuffle(sorted.slice(3));const h=Math.floor(rest.length/2);order=[...rest.slice(0,h),...sorted.slice(0,3),...rest.slice(h)];}
+  else if(mode==='season-fair'){
+    // Zone-based rotation: top=pos 1-4, mid=5-7, bot=8-11 (for 11 players)
+    // Each player is assigned to the zone they need most based on season history
+    // Players with no history are distributed evenly across zones
+    const{topEnd,midEnd}=getBatZones(n);
+    const topSlots=topEnd;
+    const midSlots=midEnd-topEnd;
+    const botSlots=n-midEnd;
+
+    // Score each player for each zone  -  lower zone count = higher need
+    const withZones=active.map(p=>{
+      const z=zoneCountsForPlayer(p.id);
+      const target=getTargetZone(p.id,n);
+      return{...p,zoneCounts:z,targetZone:target};
+    });
+
+    // Group players by target zone, shuffle within groups for variety
+    const needsTop=shuffle(withZones.filter(p=>p.targetZone==='top'));
+    const needsBot=shuffle(withZones.filter(p=>p.targetZone==='bot'));
+    const needsMid=shuffle(withZones.filter(p=>p.targetZone==='mid'));
+    const noHistory=shuffle(withZones.filter(p=>p.targetZone===null));
+
+    // Fill zones  -  if a zone has more candidates than slots, excess goes to overflow
+    const topPicks=[];const midPicks=[];const botPicks=[];const overflow=[];
+
+    // Assign top zone players first
+    [...needsTop,...noHistory.splice(0,Math.max(0,topSlots-needsTop.length))].forEach((p,i)=>{
+      if(topPicks.length<topSlots)topPicks.push(p);else overflow.push(p);
+    });
+
+    // Assign bottom zone players
+    [...needsBot].forEach(p=>{
+      if(botPicks.length<botSlots)botPicks.push(p);else overflow.push(p);
+    });
+
+    // Fill mid with needsMid + remaining noHistory + overflow
+    const midCandidates=[...needsMid,...noHistory,...overflow];
+    midCandidates.forEach(p=>{
+      if(midPicks.length<midSlots)midPicks.push(p);
+      else if(topPicks.length<topSlots)topPicks.push(p);
+      else botPicks.push(p);
+    });
+
+    // Sort within each zone by batting skill for best batting experience
+    topPicks.sort((a,b)=>b.batting-a.batting);
+    midPicks.sort((a,b)=>b.batting-a.batting);
+    botPicks.sort((a,b)=>b.batting-a.batting);
+
+    order=[...topPicks,...midPicks,...botPicks];
+    // Ensure we have all active players (safety net)
+    const missing=active.filter(p=>!order.find(o=>o.id===p.id));
+    order=[...order,...missing];
+  }
+  else if(mode==='fair-top'){order=[...sorted].sort((a,b)=>{const ap=avgBatPos(a.id),bp=avgBatPos(b.id);return(b.batting*2-(ap||n/2)*0.5)-(a.batting*2-(bp||n/2)*0.5);});}
+  else if(mode==='fair-mid'){const cut=Math.floor(n*0.4);const weak=sorted.slice(cut);const strong=sorted.slice(0,cut);const h=Math.floor(weak.length/2);order=[...weak.slice(0,h),...strong,...weak.slice(h)];}
+  else if(mode==='fair-bot'){order=[...sorted].reverse();}
+  else{order=shuffle(active);}
+  currentBatOrder=[...order];renderBatOrderEditor();
+}
+
+function renderBatOrderEditor(){
+  const el=document.getElementById('bat-order-editor');
+  if(!currentBatOrder.length){el.innerHTML='<div style="color:#aaa;font-size:13px;">Mark players as attending to build the batting order.</div>';return;}
+  const n=currentBatOrder.length;let html='';
+  currentBatOrder.forEach((p,i)=>{
+    const avg=avgBatPos(p.id);
+    const zc=zoneCountsForPlayer(p.id);
+    const zTotal=zc.total;
+    let ac='bat-avg-pill',al='No history';
+    if(avg!==null){
+      // Show zone distribution: T=top, M=mid, B=bot counts
+      al=`T:${zc.top} M:${zc.mid} B:${zc.bot}`;
+      // Colour by target zone  -  what do they need most?
+      const target=getTargetZone(p.id,n);
+      ac='bat-avg-pill '+(target==='top'?'bat-avg-good':target==='bot'?'bat-avg-low':'bat-avg-mid');
+    }
+    const color=i<3?'#1a6fa0':i>=n-3?'#aaa':'#1a1a1a';
+    html+=`<div class="bat-order-row">
+      <span style="font-size:13px;color:#bbb;width:20px;flex-shrink:0;text-align:right;">${i+1}</span>
+      <span class="num-badge" style="flex-shrink:0;">${p.number?'#'+p.number:' - '}</span>
+      <span style="flex:1;font-weight:600;color:${color};font-size:14px;">${p.name}</span>
+      <span class="${ac}">${al}</span>
+      <div class="dots">${dots(p.batting)}</div>
+      <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;">
+        <button class="icon-btn" onclick="moveBatter(${i},-1)" ${i===0?'disabled':''}>^</button>
+        <button class="icon-btn" onclick="moveBatter(${i},1)" ${i===n-1?'disabled':''}>v</button>
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+function moveBatter(idx,dir){
+  const ni=idx+dir;if(ni<0||ni>=currentBatOrder.length)return;
+  [currentBatOrder[idx],currentBatOrder[ni]]=[currentBatOrder[ni],currentBatOrder[idx]];
+  renderBatOrderEditor();
+  showBatConfirm();
+}
+
+function showBatConfirm(){
+  const el=document.getElementById('bat-order-confirm');
+  if(!el)return;
+  el.style.display='inline';
+  clearTimeout(window._batConfirmTimer);
+  window._batConfirmTimer=setTimeout(()=>{el.style.display='none';},3000);
+}
+
+function generateLineup(){
+  const active=players.filter(p=>p.attending);
+  if(active.length<2){alert('Need at least 2 players attending.');return;}
+  if(!currentBatOrder.length)buildRecommendedOrder();
+  lastDefenseRotations={rotations:buildRotations(active,5),active:[...active],game:currentGame};
+  renderLineup();
+}
+
+function regenerateDefense(){
+  const active=players.filter(p=>p.attending);if(!active.length)return;
+  lastDefenseRotations={rotations:buildRotations(active,5),active:[...active],game:currentGame};
+  renderLineup();
+}
+
+function buildRotations(active,innings){
+  const sitSchedule=planSitOuts(active,innings);
+  const rotations=[];
+  for(let i=0;i<innings;i++){
+    const bench=sitSchedule[i]||[];
+    const playing=active.filter(p=>!bench.includes(p.id));
+    // Pass inning index so assignInning knows if we're in priority zone (0-2) or bonus (3-4)
+    const asgn=assignInning(playing,rotations,i);
+    bench.forEach(id=>asgn[id]='bench');
+    rotations.push(asgn);
+  }
+  return rotations;
+}
+
+function planSitOuts(active,innings){
+  const n=active.length;
+  const schedule={};for(let i=0;i<innings;i++)schedule[i]=[];
+  if(n<=10)return schedule;
+
+  const sitPerInning=n-10;
+  const PRIORITY_INNINGS=3; // innings most likely to be played and recorded
+
+  // Calculate sit-out rate per player  -  grouped and shuffled within equal rates
+  function sortedByRate(ascending){
+    const withRates=[...active].map(p=>{
+      const log=seasonLog[p.id]||{sitouts:0,gamesAttended:0};
+      const rate=log.gamesAttended>0?log.sitouts/log.gamesAttended:0;
+      return{...p,sitRate:parseFloat(rate.toFixed(4))};
+    });
+    const rateGroups={};
+    withRates.forEach(p=>{
+      if(!rateGroups[p.sitRate])rateGroups[p.sitRate]=[];
+      rateGroups[p.sitRate].push(p);
+    });
+    const sortedRates=Object.keys(rateGroups).map(Number)
+      .sort((a,b)=>ascending?a-b:b-a);
+    const result=[];
+    sortedRates.forEach(rate=>result.push(...shuffle(rateGroups[rate])));
+    return result;
+  }
+
+  // Innings 1-PRIORITY_INNINGS: lowest sit-rate players sit first
+  // (most overdue  -  these innings are most likely to be recorded)
+  const sortedLowest=sortedByRate(true);
+
+  // Innings PRIORITY_INNINGS+1 onwards: highest sit-rate players sit
+  // (least overdue  -  these bonus innings are least likely to be recorded)
+  const sortedHighest=sortedByRate(false);
+
+  // Assign sitters to each inning
+  const usedInPriority=new Set();
+  const usedInBonus=new Set();
+
+  // Priority innings (1 to PRIORITY_INNINGS)
+  const prioritySitters=sortedLowest
+    .filter(p=>!usedInPriority.has(p.id))
+    .slice(0,sitPerInning*Math.min(innings,PRIORITY_INNINGS));
+  const priorityQueue=shuffle(prioritySitters);
+
+  let slot=0;
+  for(let i=0;i<Math.min(innings,PRIORITY_INNINGS)&&slot<priorityQueue.length;i++){
+    for(let s=0;s<sitPerInning&&slot<priorityQueue.length;s++){
+      schedule[i].push(priorityQueue[slot].id);
+      usedInPriority.add(priorityQueue[slot].id);
+      slot++;
+    }
+  }
+
+  // Bonus innings (PRIORITY_INNINGS+1 to innings)
+  // Use highest sit-rate players  -  if played and saved, helps balance; if not, no harm
+  if(innings>PRIORITY_INNINGS){
+    const bonusSitters=sortedHighest
+      .filter(p=>!usedInPriority.has(p.id)||sitPerInning*(innings-PRIORITY_INNINGS)>n-usedInPriority.size)
+      .slice(0,sitPerInning*(innings-PRIORITY_INNINGS));
+    const bonusQueue=shuffle(bonusSitters);
+    let bslot=0;
+    for(let i=PRIORITY_INNINGS;i<innings&&bslot<bonusQueue.length;i++){
+      for(let s=0;s<sitPerInning&&bslot<bonusQueue.length;s++){
+        schedule[i].push(bonusQueue[bslot].id);
+        usedInBonus.add(bonusQueue[bslot].id);
+        bslot++;
+      }
+    }
+  }
+
+  return schedule;
+}
+
+function assignInning(playing,allPrev,inningIndex=0){
+  const mode=effectiveDefMode();
+  const hist={};
+  playing.forEach(p=>{hist[p.id]={positions:[],lastPos:null,infield:0,outfield:0};});
+  allPrev.forEach(rot=>playing.forEach(p=>{
+    const pos=rot[p.id];
+    if(pos&&pos!=='bench'){hist[p.id].positions.push(pos);hist[p.id].lastPos=pos;if(INFIELD.includes(pos))hist[p.id].infield++;else hist[p.id].outfield++;}
+  }));
+
+  // Season position history for season-fair and development modes
+  function seasonPosCount(pid,pos){
+    return seasonLog[pid]?.posCounts?.[pos]||0;
+  }
+  function totalSeasonInfield(pid){
+    return seasonLog[pid]?.infield||0;
+  }
+
+  const asgn={};const taken=new Set();
+  function tryAssign(pos,cands){
+    let best=null,bs=-9999;
+    cands.forEach(p=>{
+      if(taken.has(p.id)||hist[p.id].lastPos===pos)return;
+      const isIF=INFIELD.includes(pos);
+      const repeatPenalty=hist[p.id].positions.filter(x=>x===pos).length*-5;
+      // In priority innings (0-2, most likely to be recorded), make infield need
+      // strong enough to override mode bonuses  -  ensures 2 infield innings happen
+      // in the innings that actually count. Bonus innings (3-4) use lighter weighting.
+      const PRIORITY_INN=3;
+      const inPriority=inningIndex<PRIORITY_INN;
+      const ifShortfall=Math.max(0,2-hist[p.id].infield);
+      // How many priority innings remain including this one?
+      const priorityLeft=Math.max(1,PRIORITY_INN-inningIndex);
+      // If a player still needs infield innings and is running out of priority innings
+      // to get them, boost the need significantly
+      const urgency=ifShortfall>=priorityLeft?18:ifShortfall>0?10:0;
+      const ifNeed=isIF?(inPriority?urgency:Math.max(0,ifShortfall)*3):0;
+      const ofNeed=!isIF&&hist[p.id].outfield===0&&ifShortfall===0?2:0;
+      const prefBonus=p.preferred.includes(pos)?8:0;
+      const fieldSkill=isIF?p.fielding:0;
+      let modeBonus=0;
+
+      if(mode==='competitive'){
+        // Tier 1  -  highest impact at this age: Pitcher (short grounders) and 1B (every out goes through them)
+        // Tier 2  -  SS and 3B (left side gets most pull balls from right-handed batters)
+        // Also: prioritise strong1B flag at 1B, catWilling at Catcher
+        const tier1=['Pitcher','1B'];
+        const tier2=['SS','3B'];
+        if(tier1.includes(pos)){
+          modeBonus=p.fielding*4;
+          if(pos==='1B'&&p.strong1B)modeBonus+=6; // strong1B flag bonus
+        } else if(tier2.includes(pos)){
+          modeBonus=p.fielding*2;
+        } else if(pos==='Catcher'){
+          modeBonus=p.fielding+(p.catWilling?4:p.canCatch?2:0);
+        } else {
+          modeBonus=p.fielding;
+        }
+      } else if(mode==='development'){
+        // Bonus for positions played least this game
+        const timesThisGame=hist[p.id].positions.filter(x=>x===pos).length;
+        modeBonus=timesThisGame===0?6:timesThisGame*-4;
+      } else if(mode==='season-fair'){
+        // Bonus for positions played least this season
+        const seasonCount=seasonPosCount(p.id,pos);
+        modeBonus=seasonCount===0?8:1/Math.max(1,seasonCount)*4;
+      }
+      // balanced uses no modeBonus  -  just pref, skill, repeat penalty, and infield need
+
+      const score=fieldSkill+prefBonus+repeatPenalty+ifNeed+ofNeed+modeBonus+Math.random()*1.5;
+      if(score>bs){bs=score;best=p;}
+    });
+    if(best){asgn[best.id]=pos;taken.add(best.id);}
+  }
+  // In competitive mode, pre-assign 1B to strong1B players before general infield loop
+  if(mode==='competitive'){
+    const strong1BCands=playing.filter(p=>p.strong1B&&hist[p.id].lastPos!=='1B');
+    if(strong1BCands.length)tryAssign('1B',strong1BCands);
+  }
+  // Pre-assign in innings 2 and 3 (index 1 and 2) for players urgently needing infield
+  // Inning 2: only if player needs 2 infield innings still (no infield yet, 2 innings left)
+  // Inning 3: any player still short on infield gets one guaranteed slot
+  // Max 1 pre-assignment per inning to avoid over-stuffing infield
+  const PRIO_INN=3;
+  const inPrioInning=inningIndex>=1&&inningIndex<PRIO_INN;
+  if(inPrioInning){
+    const prioLeft=PRIO_INN-inningIndex; // innings remaining including this one
+    const critical=playing.filter(function(p){
+      if(taken.has(p.id))return false;
+      const shortfall=Math.max(0,2-hist[p.id].infield);
+      if(shortfall===0)return false;
+      // Inning 2 (index 1): only pre-assign if they need 2 infield innings and have 2 innings left
+      // Inning 3 (index 2): pre-assign anyone still short
+      if(inningIndex===1)return shortfall>=prioLeft; // needs all remaining innings to be infield
+      return shortfall>0; // inning 3: anyone short
+    }).sort(function(a,b){
+      return Math.max(0,2-hist[b.id].infield)-Math.max(0,2-hist[a.id].infield);
+    });
+    if(critical.length){
+      const p=critical[0];
+      const prefIF=p.preferred.filter(function(pos){return INFIELD.includes(pos)&&hist[p.id].lastPos!==pos&&!Object.values(asgn).includes(pos)&&pos!=='Catcher'&&pos!=='Pitcher';});
+      if(prefIF.length){
+        tryAssign(prefIF[0],playing.filter(function(x){return x.id===p.id;}));
+      }
+    }
+  }
+  const catC=playing.filter(p=>(p.catWilling||p.canCatch)&&hist[p.id].lastPos!=='Catcher');
+  tryAssign('Catcher',catC.length?catC:playing);
+  tryAssign('Pitcher',playing);
+  // Skip 1B if already assigned above
+  const infieldToAssign=['SS','1B','2B','3B'].filter(pos=>!Object.values(asgn).includes(pos));
+  infieldToAssign.forEach(pos=>tryAssign(pos,playing));
+  ['LF','CF','RF','Rover'].forEach(pos=>tryAssign(pos,playing));
+  playing.forEach(p=>{if(!taken.has(p.id))asgn[p.id]='bench';});
+  return asgn;
+}
+
+function dots(v){let s='';for(let i=1;i<=5;i++)s+=`<span class="dot ${i<=v?'dot-on':'dot-off'}"></span>`;return s;}
+function pillClass(pos){
+  if(pos==='Catcher')return'pill-catcher';if(pos==='Pitcher')return'pill-pitcher';
+  if(pos==='Rover')return'pill-rover';if(INFIELD.includes(pos))return'pill-infield';
+  if(pos==='bench')return'pill-bench';return'pill-outfield';
+}
+
+/* ---- INNING EDIT MODAL ---- */
+const ALL_POSITIONS=['Pitcher','Catcher','1B','2B','3B','SS','LF','CF','RF','Rover','bench'];
+let editingInnIdx=null;
+let editDraft={}; // {playerId: position} working copy while modal is open
+
+function openEditModal(innIdx){
+  if(!lastDefenseRotations)return;
+  editingInnIdx=innIdx;
+  const rot=lastDefenseRotations.rotations[innIdx];
+  const active=lastDefenseRotations.active;
+  // Copy current rotation as draft
+  editDraft={};
+  active.forEach(p=>{editDraft[p.id]=rot[p.id]||'bench';});
+  renderEditModal();
+  document.getElementById('edit-modal').style.display='flex';
+}
+
+function renderEditModal(){
+  if(!lastDefenseRotations)return;
+  const active=lastDefenseRotations.active;
+  const edited=editedInnings[editingInnIdx];
+  document.getElementById('edit-modal-title').textContent='Edit Inning '+(editingInnIdx+1)+(edited?' (edited)':'');
+  document.getElementById('edit-modal-error').innerHTML='';
+  let html='<div style="display:flex;flex-direction:column;gap:8px;">';
+  active.forEach(p=>{
+    const cur=editDraft[p.id]||'bench';
+    html+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0ede6;">';
+    html+='<span style="flex:1;font-weight:600;font-size:14px;">'+p.name+'</span>';
+    html+='<span id="pill-'+p.id+'" class="pill '+pillClass(cur)+'">'+( cur==='bench'?'Bench':cur)+'</span>';
+    html+='<select class="pos-select" style="width:130px;" onchange="updateDraft('+p.id+',this.value)">';
+    ALL_POSITIONS.forEach(function(pos){
+      html+='<option value="'+pos+'"'+(cur===pos?' selected':'')+'>'+( pos==='bench'?'Bench':pos)+'</option>';
+    });
+    html+='</select></div>';
+  });
+  html+='</div>';
+  document.getElementById('edit-modal-body').innerHTML=html;
+  refreshModalStatus();
+}
+
+function updateDraft(playerId, pos){
+  editDraft[playerId]=pos;
+  // Update the pill colour live as selection changes
+  const pill=document.getElementById('pill-'+playerId);
+  if(pill){
+    pill.className='pill '+pillClass(pos);
+    pill.textContent=pos==='bench'?'Bench':pos;
+  }
+  refreshModalStatus();
+}
+
+function refreshModalStatus(){
+  if(!lastDefenseRotations)return;
+  // Count assigned positions
+  const counts={};
+  Object.values(editDraft).forEach(function(p){if(p!=='bench')counts[p]=(counts[p]||0)+1;});
+  // Highlight duplicates in red on pills
+  lastDefenseRotations.active.forEach(function(p){
+    const pill2=document.getElementById('pill-'+p.id);
+    if(!pill2)return;
+    const pos2=editDraft[p.id]||'bench';
+    if(pos2!=='bench'&&counts[pos2]>1){
+      pill2.style.outline='2px solid #c0392b';
+      pill2.style.outlineOffset='2px';
+    } else {
+      pill2.style.outline='none';
+    }
+  });
+  // Find missing positions (all 10 positions should appear exactly once)
+  const missing=POSITIONS.filter(function(p){return !counts[p]||counts[p]===0;});
+  const dupes=Object.keys(counts).filter(function(p){return counts[p]>1;});
+  const statusEl=document.getElementById('edit-modal-status');
+  if(!statusEl)return;
+  let statusHtml='';
+  if(missing.length){
+    statusHtml+='<span style="font-size:12px;color:#7a5000;background:#fff3cd;border:1px solid #ffe082;border-radius:6px;padding:3px 8px;margin-right:6px;">Missing: '+missing.join(', ')+'</span>';
+  }
+  if(dupes.length){
+    statusHtml+='<span style="font-size:12px;color:#c0392b;background:#fde8e8;border:1px solid #f5b8b8;border-radius:6px;padding:3px 8px;">Duplicate: '+dupes.join(', ')+'</span>';
+  }
+  if(!missing.length&&!dupes.length){
+    statusHtml='<span style="font-size:12px;color:#1a6630;background:#d4edda;border:1px solid #a5d6a7;border-radius:6px;padding:3px 8px;">All positions assigned</span>';
+  }
+  statusEl.innerHTML=statusHtml;
+}
+
+function applyInningEdit(){
+  if(!lastDefenseRotations)return;
+  const active=lastDefenseRotations.active;
+  // Validate - check for duplicate positions (excluding bench)
+  const posCounts={};
+  active.forEach(p=>{
+    const pos=editDraft[p.id]||'bench';
+    if(pos!=='bench'){
+      posCounts[pos]=(posCounts[pos]||0)+1;
+    }
+  });
+  const dupes=Object.entries(posCounts).filter(([pos,count])=>count>1).map(([pos])=>pos);
+  if(dupes.length){
+    document.getElementById('edit-modal-error').innerHTML='<div class="warn">Duplicate positions: '+dupes.join(', ')+'. Please fix before saving.</div>';
+    return;
+  }
+  // Apply draft to rotation
+  active.forEach(p=>{
+    lastDefenseRotations.rotations[editingInnIdx][p.id]=editDraft[p.id]||'bench';
+  });
+  editedInnings[editingInnIdx]=true;
+  document.getElementById('edit-modal').style.display='none';
+  editingInnIdx=null;
+  editDraft={};
+  renderLineup();
+}
+
+function resetInningFromModal(){
+  if(!lastDefenseRotations)return;
+  const{active}=lastDefenseRotations;
+  const prevRotations=lastDefenseRotations.rotations.slice(0,editingInnIdx);
+  const sitSchedule=planSitOuts(active,5);
+  const bench=sitSchedule[editingInnIdx]||[];
+  const playing=active.filter(p=>bench.indexOf(p.id)===-1);
+  const asgn=assignInning(playing,prevRotations,editingInnIdx);
+  bench.forEach(id=>asgn[id]='bench');
+  lastDefenseRotations.rotations[editingInnIdx]=asgn;
+  delete editedInnings[editingInnIdx];
+  // Update draft to match reset
+  active.forEach(p=>{editDraft[p.id]=asgn[p.id]||'bench';});
+  renderEditModal();
+  renderLineup();
+}
+
+function closeEditModal(event){
+  // Close if clicking overlay background or close button
+  if(event&&event.target!==document.getElementById('edit-modal'))return;
+  document.getElementById('edit-modal').style.display='none';
+  editingInnIdx=null;
+  editDraft={};
+}
+
+function resetInning(innIdx){
+  if(!lastDefenseRotations)return;
+  const{active}=lastDefenseRotations;
+  const prevRotations=lastDefenseRotations.rotations.slice(0,innIdx);
+  const sitSchedule=planSitOuts(active,5);
+  const bench=sitSchedule[innIdx]||[];
+  const playing=active.filter(p=>bench.indexOf(p.id)===-1);
+  const asgn=assignInning(playing,prevRotations,innIdx);
+  bench.forEach(id=>asgn[id]='bench');
+  lastDefenseRotations.rotations[innIdx]=asgn;
+  delete editedInnings[innIdx];
+  renderLineup();
+}
+
+function renderLineup(){
+  if(!lastDefenseRotations){document.getElementById('lineup-output').innerHTML='';return;}
+  const{rotations,active,game}=lastDefenseRotations;
+  const fin=isFinal(game);const mode=effectiveBatMode();
+  const savedGame=gameLog[game];
+  let html='';
+
+  const dmode=effectiveDefMode();
+  html+=`<div class="card" style="background:${fin?'#fffbea':'#f0f8ff'};border-color:${fin?'#f0c030':'#90caf9'};">
+    <div style="font-size:22px;font-weight:800;color:${fin?'#7a4f00':'#0d4f7a'};">${gameLabel(game)}${fin?'&nbsp;<span style="font-size:13px;background:#fff3cd;color:#7a4f00;padding:2px 8px;border-radius:8px;border:1px solid #f0c040;vertical-align:middle;">Final</span>':''}</div>
+    <div style="font-size:13px;color:#888;margin-top:4px;">5 innings planned . ${active.length} players . ${BAT_MODES[mode].label} batting . ${DEF_MODES[dmode].label} defense${savedGame?` . <strong>${savedGame.actualInnings} inning${savedGame.actualInnings!==1?'s':''} played</strong>`:''}</div>
+  </div>`;
+
+  // Batting order lives in the editor card above  -  not repeated here to avoid stale duplicates
+
+  const tally={};active.forEach(p=>tally[p.id]={infield:0,outfield:0,bench:0});
+  rotations.forEach(rot=>Object.entries(rot).forEach(([pid,pos])=>{
+    const id=parseInt(pid);if(!tally[id])return;
+    if(pos==='bench')tally[id].bench++;else if(INFIELD.includes(pos))tally[id].infield++;else tally[id].outfield++;
+  }));
+
+  // Build rotation table with edit buttons on inning headers
+  const innHeaders=rotations.map((_,i)=>{
+    const edited=editedInnings[i];
+    return`<th class="tc sticky-header" style="white-space:nowrap;"><div>Inn ${i+1}${edited?'<span class="edited-badge">edited</span>':''}</div><button onclick="openEditModal(${i})" style="font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid #1a6fa0;background:#e8f4fb;color:#1a6fa0;cursor:pointer;margin-top:3px;font-weight:600;">Edit</button></th>`;
+  }).join('');
+  html+=`<div class="card"><div class="section-title">Defensive rotations  -  5 innings (full plan) <span style="font-size:11px;color:#aaa;font-weight:400;">Tap Edit on any inning to adjust positions</span></div><div class="rot-table-wrap"><table style="border-collapse:collapse;width:100%;"><thead><tr><th class="sticky-col sticky-col-1 sticky-header" style="text-align:left;">#</th><th class="sticky-col sticky-col-2 sticky-header" style="text-align:left;">Player</th>${innHeaders}<th class="tc sticky-header">IF</th><th class="tc sticky-header">OF</th><th class="tc sticky-header">Bench</th></tr></thead><tbody>`;
+  active.forEach(pl=>{
+    html+=`<tr><td class="sticky-col sticky-col-1" style="color:#aaa;font-size:12px;border-right:1px solid #f0ede6;">${pl.number?'#'+pl.number:' - '}</td><td class="sticky-col sticky-col-2" style="font-weight:600;border-right:2px solid #e0dcd4;padding-right:8px;white-space:nowrap;">${pl.name}</td>`;
+    rotations.forEach((rot,innIdx)=>{
+      const pos=rot[pl.id]||'bench';
+      html+=`<td class="tc"><span class="pill ${pillClass(pos)}">${pos==='bench'?' - ':pos}</span></td>`;
+    });
+    const t=tally[pl.id];
+    html+=`<td class="tc" style="font-weight:700;color:${t.infield>=2?'#1a6630':t.bench>0?'#7a5000':'#c0392b'};">${t.infield}</td>`;
+    html+=`<td class="tc" style="color:#666;">${t.outfield}</td><td class="tc" style="color:${t.bench>1?'#c0392b':'#aaa'};">${t.bench||' - '}</td></tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  const warns=[];
+  active.forEach(p=>{const t=tally[p.id];if(t.bench>1)warns.push(`${p.name} sits out ${t.bench} innings`);const played=t.infield+t.outfield;if(t.infield<2&&played>=2)warns.push(`${p.name} only ${t.infield} infield inning(s) across ${played} innings played`);});
+  html+=warns.length?warns.map(w=>`<div class="warn" style="margin-top:6px;">${w}</div>`).join(''):`<div class="ok" style="margin-top:8px;">Full rotation looks good</div>`;
+  html+=`</div>`;
+
+  const sitters=active.filter(p=>tally[p.id].bench>0);
+  if(sitters.length){
+    html+=`<div class="card"><div class="section-title">Sitting out this game</div>`;
+    sitters.forEach(p=>{const log=seasonLog[p.id]||{sitouts:0};html+=`<div class="player-row"><span class="num-badge">${p.number?'#'+p.number:' - '}</span><span style="flex:1;font-weight:600;">${p.name}</span><span style="font-size:12px;color:#aaa;">Season sit-outs: ${log.sitouts||0}</span></div>`;});
+    html+=`</div>`;
+  }
+
+  // Check if this game has a locked lineup
+  const locked=lockedLineup&&lockedLineup.game===game;
+  const defaultInnings=savedGame?savedGame.actualInnings:3;
+
+  // Check if current rotation differs from locked rotation (stale lock)
+  let lockStale=false;
+  if(locked&&lastDefenseRotations){
+    const curRots=lastDefenseRotations.rotations;
+    const lkRots=lockedLineup.rotations;
+    outerLoop: for(let i=0;i<curRots.length;i++){
+      const curRot=curRots[i];const lkRot=lkRots[i];
+      if(!lkRot){lockStale=true;break;}
+      for(const pid of Object.keys(curRot)){
+        if(curRot[pid]!==(lkRot[pid]||'bench')){lockStale=true;break outerLoop;}
+      }
+    }
+  }
+
+  const lockState=!locked?'unlocked':lockStale?'stale':'locked';
+  const lockCardClass='card lock-card'+(lockState==='locked'?' locked':lockState==='stale'?' stale':'');
+  const lockBadge=lockState==='locked'
+    ?'<span class="badge badge-gold">Locked</span>'
+    :lockState==='stale'
+      ?'<span class="badge" style="background:#fde8e8;color:#c0392b;">Needs re-lock</span>'
+      :'<span class="badge" style="background:#d4edda;color:#1a6630;">Not locked</span>';
+  const lockMsg=lockState==='locked'
+    ?'Lineup is locked and safe. You can still edit and re-lock if needed.'
+    :lockState==='stale'
+      ?'Your rotation has changed since you last locked. Tap Re-lock to update.'
+      :'Lock the rotation before the game starts. Keeps it safe if the browser crashes or times out.';
+  const lockBtnClass=lockState==='locked'?'secondary':'primary';
+  const lockBtnLabel=lockState==='locked'?'Re-lock lineup':lockState==='stale'?'Re-lock lineup':'Lock in lineup';
+
+  // STEP 1 - Lock In Lineup
+  html+=`<div class="${lockCardClass}">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div class="section-title" style="margin-bottom:0;">Step 1 - Lock in lineup</div>
+      ${lockBadge}
+    </div>
+    <div style="font-size:13px;color:#555;margin-bottom:12px;">${lockMsg}</div>
+    <button class="${lockBtnClass}" onclick="lockLineup()" style="width:100%;padding:12px;font-size:15px;">${lockBtnLabel}</button>
+  </div>`;
+
+  // STEP 2 - Post-Game Save (only available if locked)
+  if(locked){
+    html+=`<div class="card" style="border:2px solid #1a6fa0;background:#f0f8ff;">
+      <div class="section-title" style="margin-bottom:8px;">Step 2 - Save game results</div>
+      <div style="font-size:13px;color:#555;margin-bottom:14px;">How many innings were actually played? Only those innings count toward season stats.</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;" id="inline-inn-pick">
+        ${[1,2,3,4,5].map(i=>`<button class="inn-pick-btn${i===defaultInnings?' active':''}" onclick="setInlineInnings(${i})">${i}</button>`).join('')}
+      </div>
+      <button class="primary" onclick="saveGameInline()" style="width:100%;padding:14px;font-size:16px;">Save ${fin?'Final':'Game '+game} to season log</button>
+      ${savedGame?`<div class="ok" style="margin-top:10px;">Previously saved - ${savedGame.actualInnings} inning${savedGame.actualInnings!==1?'s':''} played. Saving again will overwrite.</div>`:''}
+    </div>`;
+  } else {
+    html+=`<div class="card" style="border:2px solid #e0dcd4;background:#f9f9f7;opacity:0.6;">
+      <div class="section-title" style="margin-bottom:8px;">Step 2 - Save game results</div>
+      <div style="font-size:13px;color:#888;">Lock in your lineup first to unlock post-game saving.</div>
+    </div>`;
+  }
+  document.getElementById('lineup-output').innerHTML=html;
+}
+
+/* ---- TWO-STEP SAVE ---- */
+function setInlineInnings(n){
+  saveModalInnings=n;
+  document.querySelectorAll('#inline-inn-pick .inn-pick-btn').forEach((b,i)=>b.classList.toggle('active',i+1===n));
+}
+
+function lockLineup(){
+  if(!lastDefenseRotations)return;
+  const{rotations,active,game}=lastDefenseRotations;
+  // Save a deep copy of the current rotation and batting order
+  const rotSnapshot=rotations.map(rot=>{
+    const obj={};Object.entries(rot).forEach(([pid,pos])=>{obj[pid]=pos;});return obj;
+  });
+  const batSnapshot=(currentBatOrder.length?currentBatOrder:active).map(p=>({id:p.id,name:p.name,number:p.number,batting:p.batting}));
+  lockedLineup={
+    game,
+    rotations:rotSnapshot,
+    active:active.map(p=>Object.assign({},p)),
+    batOrder:batSnapshot,
+    batMode:effectiveBatMode(),
+    defMode:effectiveDefMode(),
+    lockedAt:new Date().toISOString()
+  };
+  // Persist lock to localStorage so it survives browser crashes
+  try{localStorage.setItem('jll_locked',JSON.stringify(lockedLineup));}catch(e){}
+  renderLineup();
+  // Scroll to show the lock confirmation
+  setTimeout(()=>{
+    const out=document.getElementById('lineup-output');
+    if(out)out.lastElementChild?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },100);
+}
+
+function saveGameInline(){
+  if(!lockedLineup)return;
+  const{rotations,active,game,batOrder}=lockedLineup;
+  const actualInnings=saveModalInnings||3;
+  if(isPlayed(game)&&!confirm(`${isFinal(game)?'Final':'Game '+game} already saved. Overwrite?`))return;
+
+  // Save batting positions
+  batOrder.forEach((p,i)=>{
+    if(!seasonLog[p.id])seasonLog[p.id]={infield:0,outfield:0,bench:0,sitouts:0,gamesAttended:0,batPositions:[],posCounts:{}};
+    if(!seasonLog[p.id].batPositions)seasonLog[p.id].batPositions=[];
+    seasonLog[p.id].batPositions.push(i+1);
+  });
+
+  // Save fielding stats for innings actually played
+  active.forEach(p=>{
+    if(!seasonLog[p.id])seasonLog[p.id]={infield:0,outfield:0,bench:0,sitouts:0,gamesAttended:0,batPositions:[],posCounts:{}};
+    if(!seasonLog[p.id].batPositions)seasonLog[p.id].batPositions=[];
+    if(!seasonLog[p.id].posCounts)seasonLog[p.id].posCounts={};
+    seasonLog[p.id].gamesAttended++;
+    for(let i=0;i<actualInnings;i++){
+      const pos=rotations[i]?rotations[i][p.id]:null;if(!pos)continue;
+      if(pos==='bench'){seasonLog[p.id].bench++;seasonLog[p.id].sitouts++;}
+      else{
+        if(INFIELD.includes(pos))seasonLog[p.id].infield++;
+        else seasonLog[p.id].outfield++;
+        seasonLog[p.id].posCounts[pos]=(seasonLog[p.id].posCounts[pos]||0)+1;
+      }
+    }
+  });
+
+  // Save full game snapshot
+  gameLog[game]={saved:true,actualInnings,attendees:active.map(p=>p.id),
+    batOrder,rotations,activeIds:active.map(p=>p.id),
+    batMode:lockedLineup.batMode,defMode:lockedLineup.defMode};
+
+  // Clear lock after successful save
+  lockedLineup=null;
+  try{localStorage.removeItem('jll_locked');}catch(e){}
+
+  saveData();updateBanner();renderLineup();
+  if(document.getElementById('tab-season').style.display!=='none')renderGameHistory();
+  setTimeout(()=>{
+    const out=document.getElementById('lineup-output');
+    if(out)out.lastElementChild?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },100);
+}
+
+/* ---- ROSTER ---- */
+function renderRoster(){
+  const el=document.getElementById('player-list');el.innerHTML='';
+  players.forEach(p=>{
+    const div=document.createElement('div');div.className='player-row';
+    if(selectedId===p.id)div.style.background='#f0f4fa';
+    const cb=p.catWilling?`<span class="badge badge-green">catches</span>`:(p.canCatch?`<span class="badge badge-amber">can catch</span>`:'');
+    const fb=p.strong1B?`<span class="badge badge-blue">strong 1B</span>`:'';
+    const prefs=p.preferred.length?p.preferred.map(pos=>`<span style="display:inline-block;font-size:10px;padding:1px 6px;border-radius:8px;font-weight:700;background:#f0ede6;color:#666;margin-left:3px;vertical-align:middle;">${pos}</span>`).join(''):'';
+    div.innerHTML=`<span class="num-badge">${p.number?'#'+p.number:' - '}</span><span style="flex:1;font-weight:600;">${p.name}${cb}${fb}${prefs}</span>
+      <div class="dots-col"><div class="dots-label">Bat</div><div class="dots">${dots(p.batting)}</div></div>
+      <div class="dots-col" style="margin-left:4px;"><div class="dots-label">Field</div><div class="dots">${dots(p.fielding)}</div></div>
+      <button class="small" onclick="selectPlayer(${p.id})">edit</button>`;
+    el.appendChild(div);
+  });
+}
+
+function selectPlayer(id){selectedId=id;renderRoster();renderEditor();document.getElementById('editor-panel').style.display='block';document.getElementById('editor-panel').scrollIntoView({behavior:'smooth',block:'nearest'});}
+function closeEditor(){selectedId=null;document.getElementById('editor-panel').style.display='none';renderRoster();}
+
+function renderEditor(){
+  const p=players.find(x=>x.id===selectedId);if(!p)return;
+  document.getElementById('editor-heading').textContent='Editing: '+p.name;
+  const cv=p.catWilling&&p.canCatch?'keen':p.canCatch?'willing':'never';
+  document.getElementById('editor-body').innerHTML=`
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:130px;"><label style="display:block;font-size:12px;color:#888;margin-bottom:4px;">Name</label><input type="text" id="e-name" value="${p.name}" style="width:100%;font-weight:600;"/></div>
+      <div style="width:72px;"><label style="display:block;font-size:12px;color:#888;margin-bottom:4px;">Jersey #</label><input type="number" id="e-num" value="${p.number}" min="0" max="99" placeholder=" - " style="width:100%;"/></div>
+      <div style="display:flex;align-items:flex-end;"><button class="primary" style="padding:8px 12px;" onclick="saveDetails(${p.id})">Save</button></div>
+    </div>
+    <div style="display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;">
+      <label style="font-size:13px;">Batting&nbsp;<select onchange="upd(${p.id},'batting',+this.value)">${[1,2,3,4,5].map(v=>`<option ${p.batting==v?'selected':''}>${v}</option>`).join('')}</select></label>
+      <label style="font-size:13px;">Fielding&nbsp;<select onchange="upd(${p.id},'fielding',+this.value)">${[1,2,3,4,5].map(v=>`<option ${p.fielding==v?'selected':''}>${v}</option>`).join('')}</select></label>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:12px;color:#888;margin-bottom:6px;">Catcher preference</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <label style="font-size:13px;display:flex;align-items:center;gap:4px;"><input type="radio" name="cat${p.id}" value="keen" ${cv==='keen'?'checked':''} onchange="setCatch(${p.id},'keen')"/> Keen catcher</label>
+        <label style="font-size:13px;display:flex;align-items:center;gap:4px;"><input type="radio" name="cat${p.id}" value="willing" ${cv==='willing'?'checked':''} onchange="setCatch(${p.id},'willing')"/> Will play if needed</label>
+        <label style="font-size:13px;display:flex;align-items:center;gap:4px;"><input type="radio" name="cat${p.id}" value="never" ${cv==='never'?'checked':''} onchange="setCatch(${p.id},'never')"/> Never catcher</label>
+      </div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:12px;color:#888;margin-bottom:6px;">First base ability</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <label style="font-size:13px;display:flex;align-items:center;gap:4px;"><input type="radio" name="fb${p.id}" value="yes" ${p.strong1B?'checked':''} onchange="set1B(${p.id},true)"/> Strong 1B  -  good at catching throws</label>
+        <label style="font-size:13px;display:flex;align-items:center;gap:4px;"><input type="radio" name="fb${p.id}" value="no" ${!p.strong1B?'checked':''} onchange="set1B(${p.id},false)"/> Standard</label>
+      </div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:12px;color:#888;margin-bottom:6px;">Preferred positions (up to 3)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;">${POSITIONS.map(pos=>`<button class="pref-btn ${p.preferred.includes(pos)?'sel':''}" onclick="togglePref(${p.id},'${pos}',this)">${pos}</button>`).join('')}</div>
+    </div>
+    <div style="padding-top:10px;border-top:1px solid #e0ddd6;"><button class="danger small" onclick="deletePlayer(${p.id})">Remove player</button></div>`;
+}
+
+function saveDetails(id){
+  const p=players.find(x=>x.id===id);if(!p)return;
+  const n=document.getElementById('e-name').value.trim();if(n)p.name=n;
+  p.number=document.getElementById('e-num').value.trim();
+  document.getElementById('editor-heading').textContent='Editing: '+p.name;
+  saveData();renderRoster();renderAttendance();buildRecommendedOrder();
+}
+function upd(id,f,v){const p=players.find(x=>x.id===id);if(p){p[f]=v;saveData();renderRoster();buildRecommendedOrder();}}
+function set1B(id,val){
+  const p=players.find(x=>x.id===id);if(!p)return;
+  p.strong1B=val;saveData();renderRoster();
+}
+function setCatch(id,val){
+  const p=players.find(x=>x.id===id);if(!p)return;
+  if(val==='keen'){p.canCatch=true;p.catWilling=true;}else if(val==='willing'){p.canCatch=true;p.catWilling=false;}else{p.canCatch=false;p.catWilling=false;}
+  saveData();renderRoster();
+}
+function togglePref(id,pos,btn){
+  const p=players.find(x=>x.id===id);if(!p)return;
+  if(p.preferred.includes(pos)){p.preferred=p.preferred.filter(x=>x!==pos);btn.classList.remove('sel');}
+  else if(p.preferred.length<3){p.preferred.push(pos);btn.classList.add('sel');}
+  saveData();
+}
+function addPlayer(){
+  const ni=document.getElementById('new-name');const nu=document.getElementById('new-num');
+  const name=ni.value.trim();if(!name)return;
+  const pl=mkPlayer(nextId++,name);pl.number=nu.value.trim();players.push(pl);
+  ni.value='';nu.value='';saveData();renderRoster();renderAttendance();
+}
+function deletePlayer(id){
+  if(!confirm('Remove this player?'))return;
+  players=players.filter(x=>x.id!==id);selectedId=null;
+  document.getElementById('editor-panel').style.display='none';
+  saveData();renderRoster();renderAttendance();buildRecommendedOrder();
+}
+
+function renderSeason(){
+  const el=document.getElementById('season-body');if(!el)return;
+  const hasData=players.some(p=>seasonLog[p.id]?.gamesAttended>0);
+  if(!hasData){el.innerHTML='<div style="color:#aaa;font-size:13px;">No games saved yet.</div>';return;}
+  const lgPlayed=Object.keys(gameLog).filter(k=>parseInt(k)<=totalLeagueGames&&gameLog[k].saved).length;
+  const finPlayed=gameLog[totalGames()]?.saved;
+  // Build innings strip  -  one chip per game showing innings played or dash
+  let inningsStrip='';
+  for(let g=1;g<=totalLeagueGames;g++){
+    const gl=gameLog[g];
+    const played=gl?.saved&&gl.actualInnings;
+    const chipBg=played?'#e8f4fb':'#f0f0f0';
+    const chipColor=played?'#0d4f7a':'#bbb';
+    inningsStrip+=`<span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px;background:${chipBg};border-radius:6px;padding:4px 7px;flex-shrink:0;">
+      <span style="font-size:9px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.04em;">G${g}</span>
+      <span style="font-size:14px;font-weight:800;color:${chipColor};">${played?played:' - '}</span>
+    </span>`;
+  }
+  // Final chip
+  const finGL=gameLog[totalGames()];
+  const finPlayed2=finGL?.saved&&finGL.actualInnings;
+  inningsStrip+=`<span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px;background:${finPlayed2?'#fff8e1':'#f0f0f0'};border-radius:6px;padding:4px 7px;flex-shrink:0;border:1px solid ${finPlayed2?'#f0c030':'transparent'};">
+    <span style="font-size:9px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.04em;">FIN</span>
+    <span style="font-size:14px;font-weight:800;color:${finPlayed2?'#7a4f00':'#bbb'};">${finPlayed2?finPlayed2:' - '}</span>
+  </span>`;
+
+  const totalInnings=Object.values(gameLog).filter(g=>g.saved).reduce((sum,g)=>sum+(g.actualInnings||0),0);
+  const gamesPlayed=lgPlayed+(finPlayed?1:0);
+  const avgInnings=gamesPlayed>0?(totalInnings/gamesPlayed).toFixed(1):' - ';
+
+  let html=`<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+    <div style="background:#e8f4fb;border-radius:8px;padding:8px 16px;text-align:center;min-width:90px;">
+      <div style="font-size:26px;font-weight:800;color:#1a6fa0;">${lgPlayed}</div>
+      <div style="font-size:11px;color:#666;">of ${totalLeagueGames} league games</div>
+    </div>
+    <div style="background:${finPlayed?'#fff8e1':'#f5f5f0'};border-radius:8px;padding:8px 16px;text-align:center;min-width:90px;">
+      <div style="font-size:26px;font-weight:800;color:${finPlayed?'#d4a800':'#ccc'};">${finPlayed?'Done':' - '}</div>
+      <div style="font-size:11px;color:#666;">Final</div>
+    </div>
+    <div style="background:#f5f5f0;border-radius:8px;padding:8px 16px;text-align:center;min-width:90px;">
+      <div style="font-size:26px;font-weight:800;color:#555;">${totalInnings}</div>
+      <div style="font-size:11px;color:#666;">total innings . avg ${avgInnings}</div>
+    </div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Innings played per game</div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;">${inningsStrip}</div>
+  </div>`;
+  html+=`<div style="overflow-x:auto;"><table><thead><tr><th>#</th><th>Player</th><th class="tc">Games</th><th class="tc">IF inn</th><th class="tc">OF inn</th><th class="tc">Sit-outs</th><th class="tc">Avg bat</th></tr></thead><tbody>`;
+  players.forEach(p=>{
+    const log=seasonLog[p.id];if(!log||!log.gamesAttended)return;
+    const avg=avgBatPos(p.id);
+    const avgStr=avg!==null?avg.toFixed(1):' - ';
+    const avgColor=avg===null?'#aaa':avg<=4?'#1a6630':avg<=8?'#7a5000':'#c0392b';
+    html+=`<tr><td style="color:#aaa;font-size:12px;">${p.number?'#'+p.number:' - '}</td><td><strong>${p.name}</strong></td><td class="tc">${log.gamesAttended}</td><td class="tc" style="font-weight:700;color:#1a6fa0;">${log.infield}</td><td class="tc" style="color:#666;">${log.outfield}</td><td class="tc" style="color:${log.sitouts>2?'#c0392b':'#666'};">${log.sitouts}</td><td class="tc" style="font-weight:700;color:${avgColor};">${avgStr}</td></tr>`;
+  });
+  html+=`</tbody></table></div><div style="font-size:12px;color:#aaa;margin-top:8px;">IF/OF innings = actually played only. Avg bat: lower = higher in order on average. Green <=4, amber <=8, red 9+.</div>`;
+  el.innerHTML=html;
+  renderGameHistory();
+}
+
+/* ---- EXPORT / IMPORT ---- */
+function exportBackup(){
+  const backup={
+    version:1,
+    exportedAt:new Date().toISOString(),
+    teamName,
+    totalLeagueGames,
+    batMode,
+    defMode,
+    players:JSON.parse(JSON.stringify(players)),
+    seasonLog:JSON.parse(JSON.stringify(seasonLog)),
+    gameLog:JSON.parse(JSON.stringify(gameLog)),
+  };
+  const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date().toISOString().slice(0,10);
+  a.href=url;
+  a.download=`${teamName.replace(/\s+/g,'_')}_backup_${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(){
+  const file=document.getElementById('import-file').files[0];
+  if(!file){alert('Please select a backup file first.');return;}
+  if(!confirm('Import this backup? All current data will be overwritten.'))return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.version||!data.players){throw new Error('Invalid backup file');}
+      players=data.players;
+      seasonLog=data.seasonLog||{};
+      gameLog=data.gameLog||{};
+      teamName=data.teamName||'Jericho Minors Marlins';
+      totalLeagueGames=data.totalLeagueGames||8;
+      batMode=data.batMode||'season-fair';
+      defMode=data.defMode||'balanced';
+      nextId=Math.max(...players.map(p=>p.id))+1;
+      saveData();
+      applyTeamName();
+      renderRoster();
+      renderAttendance();
+      updateBanner();
+      buildRecommendedOrder();
+      document.getElementById('lineup-output').innerHTML='';
+      // Update settings fields
+      document.getElementById('settings-team-name').value=teamName;
+      document.getElementById('settings-league-games').value=totalLeagueGames;
+      flash('import-confirm','Backup imported successfully!');
+    }catch(err){
+      alert('Could not read backup file. Make sure it is a valid JSON backup exported from this app.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function exportCSV(){
+  const savedGames=Object.keys(gameLog).filter(k=>gameLog[k].saved).map(k=>parseInt(k)).sort((a,b)=>a-b);
+  if(!savedGames.length){alert('No saved games to export.');return;}
+
+  const INFIELD_L=['Pitcher','Catcher','1B','2B','3B','SS'];
+
+  // Build header
+  const headers=[
+    'Game','Game Type','Innings Planned','Innings Played',
+    'Player','Jersey #','Batting Position','Batting Zone',
+    'Inn 1 Position','Inn 2 Position','Inn 3 Position','Inn 4 Position','Inn 5 Position',
+    'Infield Innings This Game','Outfield Innings This Game','Bench Innings This Game',
+    'Sat Out This Game',
+    'Season Infield Total','Season Outfield Total','Season Sitouts Total','Season Games Attended','Season Avg Bat Pos'
+  ];
+
+  const rows=[headers];
+
+  savedGames.forEach(g=>{
+    const gl=gameLog[g];
+    if(!gl||!gl.saved)return;
+    const gameType=isFinal(g)?'Final':'League';
+    const innings=gl.actualInnings||3;
+    const batOrder=gl.batOrder||[];
+    const rotations=gl.rotations||[];
+
+    // Build per-player data for this game
+    const allPlayerIds=[...new Set([
+      ...batOrder.map(p=>p.id),
+      ...(gl.activeIds||[])
+    ])];
+
+    allPlayerIds.forEach(pid=>{
+      const playerInfo=batOrder.find(p=>p.id==pid)||players.find(p=>p.id==pid);
+      if(!playerInfo)return;
+
+      // Batting position
+      const batPos=batOrder.findIndex(p=>p.id==pid);
+      const batPosNum=batPos>=0?batPos+1:' - ';
+      const n=batOrder.length||11;
+
+      // Batting zone
+      let batZone=' - ';
+      if(batPos>=0){
+        const{topEnd,midEnd}=getBatZonesExport(n);
+        if(batPosNum<=topEnd)batZone='Top';
+        else if(batPosNum<=midEnd)batZone='Middle';
+        else batZone='Bottom';
+      }
+
+      // Positions by inning
+      const innPositions=[];
+      let ifCount=0,ofCount=0,benchCount=0;
+      for(let i=0;i<5;i++){
+        const rot=rotations[i];
+        const pos=rot?rot[pid]||rot[''+pid]:null;
+        if(i<innings){
+          innPositions.push(pos||' - ');
+          if(pos==='bench'){benchCount++;}
+          else if(pos&&INFIELD_L.includes(pos)){ifCount++;}
+          else if(pos){ofCount++;}
+        } else {
+          innPositions.push(' - ');
+        }
+      }
+
+      const satOut=benchCount>0?'Yes':'No';
+
+      // Season totals
+      const sl=seasonLog[pid]||{};
+      const bpAll=sl.batPositions||[];
+      const avgBat=bpAll.length>0?(bpAll.reduce((a,b)=>a+b,0)/bpAll.length).toFixed(1):' - ';
+
+      rows.push([
+        g,gameType,5,innings,
+        playerInfo.name,
+        playerInfo.number?'#'+playerInfo.number:' - ',
+        batPosNum,batZone,
+        ...innPositions,
+        ifCount,ofCount,benchCount,satOut,
+        sl.infield||0,sl.outfield||0,sl.sitouts||0,sl.gamesAttended||0,avgBat
+      ]);
+    });
+  });
+
+  // Convert to CSV string
+  const csvContent=rows.map(row=>
+    row.map(cell=>{
+      const str=String(cell===null||cell===undefined?'':cell);
+      return str.includes(',')||str.includes('"')||str.indexOf('\n')>=0
+        ?'"'+str.replace(/"/g,'""')+'"'
+        :str;
+    }).join(',')
+  ).join('\n');
+
+  const blob=new Blob([csvContent],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date().toISOString().slice(0,10);
+  a.href=url;
+  a.download=`${teamName.replace(/\s+/g,'_')}_season_stats_${date}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function getBatZonesExport(n){
+  const topEnd=Math.round(n*4/11);
+  const midEnd=topEnd+Math.round(n*3/11);
+  return{topEnd,midEnd};
+}
+
+function clearSeason(){
+  if(!confirm('Reset entire season log and game history? Cannot be undone.'))return;
+  seasonLog={};gameLog={};currentGame=1;saveData();renderSeason();updateBanner();buildRecommendedOrder();
+}
+
+function renderGameHistory(){
+  const el=document.getElementById('game-history-body');if(!el)return;
+  const savedGames=Object.keys(gameLog).filter(k=>gameLog[k].saved).map(k=>parseInt(k)).sort((a,b)=>a-b);
+  if(!savedGames.length){el.innerHTML='<div style="color:#aaa;font-size:13px;">No games saved yet.</div>';return;}
+  let html='';
+  savedGames.forEach(g=>{
+    const gl=gameLog[g];
+    const fin=isFinal(g);
+    const label=fin?'The Final':`Game ${g}`;
+    const sub=`${gl.actualInnings} inning${gl.actualInnings!==1?'s':''} played . ${gl.batOrder?.length||'?'} players . ${BAT_MODES[gl.batMode]?.label||''} batting . ${DEF_MODES[gl.defMode]?.label||''} defense`;
+    html+=`<div style="border:0.5px solid #e0dcd4;border-radius:10px;margin-bottom:8px;overflow:hidden;">
+      <div onclick="toggleGameDetail(${g})" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;background:#fafafa;">
+        <div>
+          <div style="font-weight:700;font-size:14px;color:${fin?'#7a4f00':'#0d4f7a'};">${label}${fin?' ':''}</div>
+          <div style="font-size:12px;color:#888;margin-top:2px;">${sub}</div>
+        </div>
+        <span id="toggle-icon-${g}" style="font-size:18px;color:#aaa;">v</span>
+      </div>
+      <div id="game-detail-${g}" style="display:none;padding:14px;border-top:0.5px solid #e0dcd4;background:#fff;">
+        ${renderGameDetailHTML(g,gl)}
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+function toggleGameDetail(g){
+  const detail=document.getElementById('game-detail-'+g);
+  const icon=document.getElementById('toggle-icon-'+g);
+  if(!detail)return;
+  const open=detail.style.display==='none';
+  detail.style.display=open?'block':'none';
+  icon.textContent=open?'^':'v';
+}
+
+function renderGameDetailHTML(g,gl){
+  if(!gl.batOrder||!gl.rotations)return '<div style="color:#aaa;font-size:13px;">Full detail not available for this game (saved before history tracking was added).</div>';
+  const INFIELD_L=['Pitcher','Catcher','1B','2B','3B','SS'];
+  function pc(pos){
+    if(pos==='Catcher')return'pill-catcher';if(pos==='Pitcher')return'pill-pitcher';
+    if(pos==='Rover')return'pill-rover';if(INFIELD_L.includes(pos))return'pill-infield';
+    if(pos==='bench')return'pill-bench';return'pill-outfield';
+  }
+  let html='';
+
+  // Batting order
+  html+=`<div style="margin-bottom:16px;">
+    <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Batting order</div>`;
+  gl.batOrder.forEach((p,i)=>{
+    const color=i<3?'#1a6fa0':i>=gl.batOrder.length-3?'#aaa':'#1a1a1a';
+    html+=`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid #f0ede6;">
+      <span style="font-size:12px;color:#bbb;width:18px;text-align:right;">${i+1}</span>
+      <span style="display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;border-radius:50%;background:#f0f4f8;border:1px solid #ddd;font-size:10px;font-weight:700;color:#555;">${p.number?'#'+p.number:' - '}</span>
+      <span style="flex:1;font-weight:600;color:${color};font-size:13px;">${p.name}</span>
+    </div>`;
+  });
+  html+=`</div>`;
+
+  // Defensive rotations
+  const innings=gl.actualInnings;
+  html+=`<div>
+    <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Defensive rotations  -  ${innings} inning${innings!==1?'s':''} played</div>
+    <div style="overflow-x:auto;">
+    <table style="border-collapse:collapse;width:100%;font-size:12px;">
+      <thead><tr>
+        <th style="text-align:left;padding:5px 4px;font-size:10px;font-weight:700;color:#999;text-transform:uppercase;border-bottom:2px solid #e0dcd4;">#</th>
+        <th style="text-align:left;padding:5px 4px;font-size:10px;font-weight:700;color:#999;text-transform:uppercase;border-bottom:2px solid #e0dcd4;">Player</th>`;
+  for(let i=1;i<=innings;i++)html+=`<th style="text-align:center;padding:5px 4px;font-size:10px;font-weight:700;color:#999;text-transform:uppercase;border-bottom:2px solid #e0dcd4;">Inn ${i}</th>`;
+  html+=`</tr></thead><tbody>`;
+
+  // Build player list from activeIds + batOrder combined
+  const allIds=[...new Set([...(gl.activeIds||[]),...(gl.batOrder||[]).map(p=>p.id)])];
+  allIds.forEach(pid=>{
+    const playerInfo=gl.batOrder?.find(p=>p.id==pid)||gl.rotations[0]&&{id:pid,name:'Player '+pid,number:''};
+    if(!playerInfo)return;
+    html+=`<tr>
+      <td style="padding:4px;color:#aaa;">${playerInfo.number?'#'+playerInfo.number:' - '}</td>
+      <td style="padding:4px;font-weight:600;">${playerInfo.name}</td>`;
+    for(let i=0;i<innings;i++){
+      const rot=gl.rotations[i]||{};
+      const pos=rot[pid]||rot[''+pid]||' - ';
+      if(pos==='bench'||pos===' - '){
+        html+=`<td style="text-align:center;padding:4px;"><span class="pill pill-bench">${pos==='bench'?'bench':' - '}</span></td>`;
+      } else {
+        html+=`<td style="text-align:center;padding:4px;"><span class="pill ${pc(pos)}">${pos}</span></td>`;
+      }
+    }
+    html+=`</tr>`;
+  });
+  html+=`</tbody></table></div></div>`;
+  return html;
+}
+
+/* INIT */
+document.getElementById('bat-mode-desc').textContent=BAT_MODES[batMode].desc;
+document.querySelectorAll('.mode-btn[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===batMode));
+document.getElementById('def-mode-desc').textContent=DEF_MODES[defMode].desc;
+document.querySelectorAll('.mode-btn[data-dmode]').forEach(b=>b.classList.toggle('active',b.dataset.dmode===defMode));
+applyTeamName();
+renderRoster();
+renderAttendance();
+updateBanner();
+buildRecommendedOrder();
+</script>
+
+<!-- INNING EDIT MODAL -->
+<div id="edit-modal" class="edit-modal-overlay" style="display:none;" onclick="closeEditModal(event)">
+  <div class="edit-modal" onclick="event.stopPropagation()">
+    <div class="edit-modal-header">
+      <strong id="edit-modal-title" style="font-size:16px;color:#0d4f7a;">Edit Inning</strong>
+      <button onclick="closeEditModal()" style="font-size:20px;background:none;border:none;color:#888;padding:4px 10px;cursor:pointer;line-height:1;">x</button>
+    </div>
+    <div id="edit-modal-status" style="margin-bottom:10px;min-height:24px;"></div>
+    <div id="edit-modal-body"></div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="primary" onclick="applyInningEdit()" style="flex:1;padding:12px;">Apply</button>
+      <button class="secondary" onclick="resetInningFromModal()" style="padding:12px;">Reset inning</button>
+    </div>
+    <div id="edit-modal-error" style="margin-top:8px;"></div>
+  </div>
+</div>
+</body>
+</html>
